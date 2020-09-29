@@ -1,0 +1,13 @@
+{
+  "properties": [
+    {
+      "name": "konczdam.app.jwtSecret",
+      "type": "java.lang.String",
+      "description": "The secret key used for generating json web tokens"
+    },
+    {
+      "name": "konczdam.app.jwtExpirationMs",
+      "type": "java.lang.Integer",
+      "description": "The amount of seconds for a json web token to expire"
+    }
+  ] }
