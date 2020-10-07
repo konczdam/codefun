@@ -37,7 +37,7 @@ class AuthController {
         val authentication = authenticationManager.authenticate(
                 UsernamePasswordAuthenticationToken(
                         loginDto.email,
-                        loginDto.password,
+                        loginDto.password
                 )
         )
 

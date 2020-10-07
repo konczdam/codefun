@@ -11,5 +11,5 @@ data class JwtResponse (
 
         val email: String,
 
-        val roles: List<String>,
+        val roles: List<String>
 )

@@ -34,7 +34,7 @@ data class User(
         val friendOf: MutableSet<User> = mutableSetOf(),
 
         @ManyToMany(fetch = FetchType.EAGER)
-        val roles: Set<Role> = mutableSetOf(),
+        val roles: Set<Role> = mutableSetOf()
 ) {
 
     @Id
