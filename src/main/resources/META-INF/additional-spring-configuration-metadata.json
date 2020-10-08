@@ -9,5 +9,10 @@
       "name": "konczdam.app.jwtExpirationMs",
       "type": "java.lang.Integer",
       "description": "The amount of seconds for a json web token to expire"
+    },
+    {
+      "name": "konczdam.app.coderunnerexecutorcount.java",
+      "type": "java.lang.Integer",
+      "description": "Description for konczdam.app.coderunnerexecutorcount.java."
     }
   ] }

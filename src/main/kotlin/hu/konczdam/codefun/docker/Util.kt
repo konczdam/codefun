@@ -4,7 +4,7 @@ import java.io.File
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 
-fun exec(cmd: String, stdIn: String = "", captureOutput:Boolean = false, workingDir: File = File(".")): String? {
+fun exec(cmd: String, stdIn: String = "", captureOutput: Boolean = false, workingDir: File = File(".")): String? {
     try {
         val process = ProcessBuilder(*cmd.split("\\s".toRegex()).toTypedArray())
                 .directory(workingDir)
@@ -44,10 +44,10 @@ fun parseCodeRunnerOutput(output: String): ParseResponse {
     var lines = output.lines()
 
     if (lines[0].contains("compileJava FAILED")) {
-        lines = lines.filterIndexed { index, s -> index > 0}
+        lines = lines.filterIndexed { index, s -> index > 0 }
 
         return ParseResponse(
-                errorMessage = lines.joinToString { it -> it}
+                errorMessage = lines.joinToString { it -> it }
         )
     }
 
