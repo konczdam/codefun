@@ -44,7 +44,8 @@ class CodefunApplication: CommandLineRunner {
 //
 //		val element = ChallengeTest(
 //				input = "1 \r\n 2\r\n",
-//				expectedOutput = "3"
+//				expectedOutput = "3",
+//				displayName = "simple"
 //		)
 //		challenge.challengeTests.add(
 //				element

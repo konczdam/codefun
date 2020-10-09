@@ -2,10 +2,15 @@ package hu.konczdam.codefun.docker.service
 
 import hu.konczdam.codefun.docker.exec
 import hu.konczdam.codefun.docker.parseCodeRunnerOutput
+import hu.konczdam.codefun.model.ChallengeTest
+import hu.konczdam.codefun.service.ChallengeService
+import hu.konczdam.codefun.service.ChallengeTestService
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import java.util.concurrent.Semaphore
+import java.util.concurrent.atomic.AtomicInteger
 import javax.annotation.PostConstruct
 import javax.annotation.PreDestroy
 
@@ -16,7 +21,15 @@ class JavaCodeRunnerService: CodeRunnerService {
     @Value("\${konczdam.app.coderunnerexecutorcount.java}")
     private var numberOfJavaExecutorDockerContainers: Int = 0
 
+    @Autowired
+    private lateinit var challengeService: ChallengeService
+
+    @Autowired
+    private lateinit var challengeTestService: ChallengeTestService
+
     private lateinit var semaphore: Semaphore
+
+    private val atomicInteger = AtomicInteger()
 
     val runnerContainerIds = mutableListOf<String>()
 
@@ -41,13 +54,14 @@ class JavaCodeRunnerService: CodeRunnerService {
     }
 
     override fun executeCode(challengeId: Long, code: String, testIds: List<Long>) {
+        var cmd = createCommand(challengeId, code, testIds)
         semaphore.acquire()
         var containerId: String
         synchronized(this) {
             containerId = runnerContainerIds.removeAt(0)
         }
         println("starting code execution")
-        val cmd = "docker exec $containerId node run -l java -c \"import java.util.Scanner;  public class InputTest {      public static void main(String[] args) {         Scanner scanner = new Scanner(System.in);                  int a = scanner.nextInt();         int b = scanner.nextInt();          System.out.println(a+b);     } } \" -f \"import org.junit.Assert;         import org.junit.Test;  import java.io.*;  public class InputTestTest {      @Test     public void test() throws InterruptedException, IOException {         String input = \\\"3 5\\\";         System.setIn(new ByteArrayInputStream(input.getBytes()));           PrintStream printStream = new PrintStream(new File(\\\"aaa.txt\\\"));         PrintStream pr = System.out;         System.setOut(printStream);          InputTest.main(new String[]{});         Thread.sleep(400);         System.setOut(pr);         String finalString = new BufferedReader(new InputStreamReader(new FileInputStream(new File(\\\"aaa.txt\\\")))).readLine();         Assert.assertEquals(\\\"8\\\", finalString);     } }   \""
+        cmd = cmd.replace("{{containerId}}", containerId)
         val result = exec( cmd = cmd, captureOutput = true)
         println("Code Executed: $containerId")
         if (result != null) {
@@ -58,6 +72,35 @@ class JavaCodeRunnerService: CodeRunnerService {
             runnerContainerIds.add(containerId)
         }
         semaphore.release()
+    }
+
+    private fun createCommand(challengeId: Long, code: String, testIds: List<Long>): String {
+        val challange = challengeService.findById(challengeId)
+        if (challange == null) {
+            throw Exception("Challenge not found in database")
+        }
+
+        val tests = mutableListOf<ChallengeTest>()
+
+        testIds.forEach {
+            val challengeTest = challengeTestService.findByIdAndChallengeId(it, challengeId)
+            if (challengeTest == null) {
+                throw Exception("ChallengeTest not found in database!")
+            }
+            tests.add(challengeTest)
+        }
+
+        val escapedCode = code.replace("\"", "\\\"")
+        var result = "docker exec {{containerId}} node run -l java -c \"$escapedCode\" -f "
+
+        var testCode = "\"import org.junit.Assert;         import org.junit.Test;  import java.io.*;  public class SolutionTest${atomicInteger.incrementAndGet()} {  "
+
+        tests.forEach {
+            val testCase =  "@Test     public void ${it.displayName}() throws InterruptedException, IOException {         String input = \\\"${it.input}\\\";         System.setIn(new ByteArrayInputStream(input.getBytes()));           PrintStream printStream = new PrintStream(new File(\\\"aaa.txt\\\"));         PrintStream pr = System.out;         System.setOut(printStream);          Solution.main(new String[]{});          System.setOut(pr);         String finalString = new BufferedReader(new InputStreamReader(new FileInputStream(new File(\\\"aaa.txt\\\")))).readLine();         Assert.assertEquals(\\\"${it.expectedOutput}\\\", finalString);     }"
+            testCode += testCase
+        }
+        result = result + testCode + "}\""
+        return result
     }
 
 }

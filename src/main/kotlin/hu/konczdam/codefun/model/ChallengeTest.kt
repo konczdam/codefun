@@ -6,7 +6,9 @@ import javax.persistence.*
 data class ChallengeTest(
         val input: String,
 
-        val expectedOutput: String
+        val expectedOutput: String,
+
+        val displayName: String
 ) {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
