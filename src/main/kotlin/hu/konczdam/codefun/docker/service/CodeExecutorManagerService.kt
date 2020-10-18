@@ -12,6 +12,10 @@ class CodeExecutorManagerService {
     private lateinit var javaCodeRunnerService: CodeRunnerService
 
     fun test() {
-        javaCodeRunnerService.executeCode(123L, "aasdasd", listOf())
+        javaCodeRunnerService.executeCode(
+                8L,
+                "import java.util.Scanner;  public class Solution {      public static void main(String[] args) {         Scanner scanner = new Scanner(System.in);                  int a = scanner.nextInt();         int b = scanner.nextInt();          System.out.println(a+b);     } }",
+                listOf(9L, 111L)
+        )
     }
 }

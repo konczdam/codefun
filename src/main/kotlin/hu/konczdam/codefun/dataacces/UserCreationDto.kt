@@ -14,7 +14,7 @@ data class UserCreationDto (
         @NotBlank
         val username: String,
 
-        @Size(min = 5)
+        @Size(min = 6)
         val password: String,
 
         val roles: Set<String>,

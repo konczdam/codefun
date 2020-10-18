@@ -58,7 +58,7 @@ class WebSecurityConfig: WebSecurityConfigurerAdapter(), WebMvcConfigurer {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeRequests()
                 .antMatchers("/resource/**", "/test/**", "api/test/**",
-                        "api/login/**", "/login/**", "/auth/**", "/auth", "/api/auth").permitAll()
+                        "api/login/**", "/login/**", "/auth/**", "/auth", "/api/auth", "/ws", "/ws", "/ws/**").permitAll()
                 .anyRequest().authenticated()
 
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter::class.java)

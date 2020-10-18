@@ -3,6 +3,7 @@ package hu.konczdam.codefun.controller
 import hu.konczdam.codefun.config.jwt.JwtUtils
 import hu.konczdam.codefun.dataacces.LoginDto
 import hu.konczdam.codefun.dataacces.UserCreationDto
+import hu.konczdam.codefun.docker.service.CodeExecutorManagerService
 import hu.konczdam.codefun.payload.response.JwtResponse
 import hu.konczdam.codefun.service.UserService
 import hu.konczdam.codefun.services.UserDetailsImpl
@@ -28,6 +29,9 @@ class AuthController {
 
     @Autowired
     private lateinit var jwtUtils: JwtUtils
+
+    @Autowired
+    private lateinit var codeExecutorManagerService: CodeExecutorManagerService
 
     @PostMapping
     fun authenticateUser(
@@ -63,6 +67,11 @@ class AuthController {
             @RequestBody @Valid userCreationDto: UserCreationDto
     ): ResponseEntity<*> {
         val user = userService.createUser(userCreationDto)
-        return ResponseEntity.created(URI("aaa")).body("aaa")
+        return ResponseEntity.created(URI("/api/user/${user.id}")).body("User created!")
+    }
+
+    @PostMapping("/test")
+    fun test() {
+        codeExecutorManagerService.test()
     }
 }

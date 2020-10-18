@@ -55,4 +55,13 @@ class UserService {
         return userRepository.save(user)
     }
 
+    @Transactional
+    fun getUserById(userId: Long): User {
+        val user = userRepository.findById(userId)
+        if (user.isPresent) {
+            return user.get()
+        }
+        throw Exception("User not found in DB")
+    }
+
 }

@@ -1,5 +1,6 @@
 package hu.konczdam.codefun.model
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import javax.persistence.*
 
 @Entity
@@ -21,12 +22,14 @@ data class User(
         @ElementCollection(fetch = FetchType.EAGER)
         val preferredLanguages: MutableSet<Language>,
 
+        @JsonIgnore
         @ManyToMany
         @JoinTable(name = "tbl_friends",
                 joinColumns = arrayOf(JoinColumn(name = "personId")),
                 inverseJoinColumns = arrayOf(JoinColumn(name = "friendId")))
         val friends: MutableSet<User> = mutableSetOf(),
 
+        @JsonIgnore
         @ManyToMany
         @JoinTable(name = "tbl_friends",
                 joinColumns = arrayOf(JoinColumn(name = "friendId")),
