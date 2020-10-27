@@ -1,6 +1,9 @@
 package hu.konczdam.codefun.model
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import hu.konczdam.codefun.converter.UserConverter
+import hu.konczdam.codefun.dataacces.UserDto
+import org.mapstruct.factory.Mappers
 import javax.persistence.*
 
 @Entity
@@ -43,4 +46,5 @@ data class User(
     @Id
     @GeneratedValue
     var id: Long? = null
+
 }

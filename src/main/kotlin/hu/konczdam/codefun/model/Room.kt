@@ -1,20 +1,22 @@
 package hu.konczdam.codefun.model
 
+import hu.konczdam.codefun.dataacces.UserDto
+
 data class Room constructor(
-    val owner: User,
+        val owner: UserDto,
 
-    val description: String
+        val description: String
 ) {
-    val others: MutableList<User> = mutableListOf()
+    val others: MutableList<UserDto> = mutableListOf()
 
-    fun subscribe(user: User): Room {
+    fun subscribe(user: UserDto): Room {
         val newRoom = this.copy()
         newRoom.others.addAll(this.others)
         newRoom.others.add(user)
         return newRoom
     }
 
-    fun unSubscribe(user: User): Room {
+    fun unSubscribe(user: UserDto): Room {
         val newRoom = this.copy()
         newRoom.others.addAll(this.others)
         newRoom.others.remove(user)

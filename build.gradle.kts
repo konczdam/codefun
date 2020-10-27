@@ -3,9 +3,11 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
 	id("org.springframework.boot") version "2.3.4.RELEASE"
 	id("io.spring.dependency-management") version "1.0.10.RELEASE"
-	kotlin("jvm") version "1.3.72"
+	kotlin("jvm") version "1.3.61"
 	kotlin("plugin.spring") version "1.3.72"
 	kotlin("plugin.jpa") version "1.3.72"
+	kotlin("kapt") version "1.4.10"
+
 }
 
 group = "hu.konczdam"
@@ -39,6 +41,8 @@ dependencies {
 	implementation("org.springframework.security:spring-security-rsocket")
 	implementation("io.jsonwebtoken:jjwt:0.9.1")
 	implementation("javax.validation:validation-api:2.0.1.Final")
+	implementation("org.mapstruct:mapstruct:1.4.1.Final")
+	kapt("org.mapstruct:mapstruct-processor:1.4.1.Final")
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
 	developmentOnly("com.h2database:h2")
 	runtimeOnly("mysql:mysql-connector-java")
@@ -57,8 +61,10 @@ tasks.withType<Test> {
 tasks.withType<KotlinCompile> {
 	kotlinOptions {
 		freeCompilerArgs = listOf("-Xjsr305=strict")
-		jvmTarget = "1.8"
+		jvmTarget = JavaVersion.VERSION_1_8.toString()
 	}
+	sourceCompatibility = JavaVersion.VERSION_1_8.toString()
+	targetCompatibility = JavaVersion.VERSION_1_8.toString()
 }
 val compileKotlin: KotlinCompile by tasks
 compileKotlin.kotlinOptions {

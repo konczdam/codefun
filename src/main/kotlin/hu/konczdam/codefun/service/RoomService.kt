@@ -1,7 +1,8 @@
 package hu.konczdam.codefun.service
 
+import hu.konczdam.codefun.converter.toDto
+import hu.konczdam.codefun.dataacces.UserDto
 import hu.konczdam.codefun.model.Room
-import hu.konczdam.codefun.model.User
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import javax.annotation.PostConstruct
@@ -14,37 +15,36 @@ class RoomService {
 
     private val roomList: MutableList<Room> = mutableListOf()
 
-    @PostConstruct
-    private fun init() {
-        addRoom(3L, "Let's have a fun game!")
-    }
-
     fun addRoom(ownerId: Long, description: String): Room {
         val owner = userService.getUserById(ownerId)
-        val newRoom = Room(owner = owner, description = description )
+        if (getRoomList().any { it.owner.id == ownerId} ) {
+            throw Exception("User already has a room!")
+        }
+        val newRoom = Room(owner = owner.toDto(), description = description )
         addRoom(newRoom)
         return newRoom
     }
 
-    fun usersInChatRoom(ownerId: Long): List<User> {
+    fun usersInChatRoom(ownerId: Long): List<UserDto> {
         val room = getRoomList().first { it.owner.id == ownerId }
         val result = mutableListOf(room.owner)
         result.addAll(room.others)
         return result
     }
 
-    fun addUserToRoom(userId: Long, ownerId: Long): List<User> {
+    fun addUserToRoom(userId: Long, ownerId: Long): List<UserDto> {
         val newUser = userService.getUserById(userId)
         val oldRoom = getRoomList().first { it.owner.id == ownerId }
-        val newRoom = oldRoom.subscribe(newUser)
+        val newRoom = oldRoom.subscribe(newUser.toDto())
         updateRoom(oldRoom, newRoom)
         return usersInChatRoom(ownerId)
     }
 
-    fun removeUserFromRoom(userId: Long, ownerId: Long): List<User> {
+    fun removeUserFromRoom(userId: Long, ownerId: Long): List<UserDto> {
         val oldUser = userService.getUserById(userId)
         val oldRoom = getRoomList().first { it.owner.id == ownerId }
-        val newRoom = oldRoom.unSubscribe(oldUser)
+        val oldUserDto = oldUser.toDto()
+        val newRoom = oldRoom.unSubscribe(oldUserDto)
         updateRoom(oldRoom, newRoom)
         return usersInChatRoom(ownerId)
     }
