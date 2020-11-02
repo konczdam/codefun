@@ -2,6 +2,8 @@ package hu.konczdam.codefun.service
 
 import hu.konczdam.codefun.converter.toDto
 import hu.konczdam.codefun.dataacces.UserDto
+import hu.konczdam.codefun.model.GameType
+import hu.konczdam.codefun.model.Message
 import hu.konczdam.codefun.model.Room
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -23,6 +25,16 @@ class RoomService {
         val newRoom = Room(owner = owner.toDto(), description = description )
         addRoom(newRoom)
         return newRoom
+    }
+
+    fun removeRoom(ownerId: String, roomId: String) {
+        if (ownerId != roomId) {
+            throw Exception("A user can only delete its own room!")
+        }
+        val roomToDelete = getRoomList().first { it.owner.id == ownerId.toLong() }
+        synchronized(this) {
+            roomList.remove(roomToDelete)
+        }
     }
 
     fun usersInChatRoom(ownerId: Long): List<UserDto> {
@@ -55,6 +67,14 @@ class RoomService {
         }
     }
 
+    fun addMessage(roomId: String, message: Message): List<Message> {
+        val roomToAddMessage = getRoomList().first { it.owner.id == roomId.toLong() }
+        synchronized(roomToAddMessage) {
+            roomToAddMessage.messages.add(message)
+            return roomToAddMessage.messages
+        }
+    }
+
     private fun addRoom(room: Room) {
         synchronized(this) {
             roomList.add(room)
@@ -67,6 +87,15 @@ class RoomService {
             this.roomList.add(newRoom)
             return roomList
         }
+    }
+
+    fun setGameType(roomId: Long, gameType: String): GameType {
+        val result = GameType.valueOf(gameType)
+        val room = getRoomList().first { it.owner.id == roomId}
+        synchronized(this) {
+            room.gameType = result
+        }
+        return result
     }
 
 }

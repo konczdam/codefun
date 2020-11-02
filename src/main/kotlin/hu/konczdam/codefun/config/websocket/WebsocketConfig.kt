@@ -24,9 +24,8 @@ class WebsocketConfig : WebSocketMessageBrokerConfigurer, AbstractSecurityWebSoc
         registry.setUserDestinationPrefix("/user")
     }
 
-    override fun sameOriginDisabled(): Boolean {
-        return true
-    }
+    override fun sameOriginDisabled() =  true
+
 
     override fun configureInbound(messages: MessageSecurityMetadataSourceRegistry) {
 //        super.configureInbound(messages)

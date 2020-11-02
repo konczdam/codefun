@@ -6,8 +6,13 @@ data class Room constructor(
         val owner: UserDto,
 
         val description: String
+
 ) {
     val others: MutableList<UserDto> = mutableListOf()
+
+    val messages: MutableList<Message> = mutableListOf()
+
+    var gameType: GameType = GameType.NORMAL
 
     fun subscribe(user: UserDto): Room {
         val newRoom = this.copy()
