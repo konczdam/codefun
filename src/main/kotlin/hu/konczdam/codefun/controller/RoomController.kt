@@ -59,6 +59,20 @@ class RoomController {
         return roomService.addUserToRoom(userId, roomOwnerId.toLong())
     }
 
+    @MessageMapping(MSG_PREFIX + "/{roomId}/leaveRoom")
+    @SendTo(TOPIC_PREFIX + "/updateRoom")
+    fun leaveRoom(
+            @Header("Authorization", required = true) header: String,
+            @DestinationVariable roomId: String
+    ): List<UserDto> {
+        val userId = jwtUtils.getIdFromJwtToken(header)?.toLong()
+        if (userId == null) {
+            throw Exception("Invalid token!")
+        }
+
+        return roomService.removeUserFromRoom(userId, roomId.toLong())
+    }
+
     @SubscribeMapping(MSG_PREFIX + "/{roomId}")
     fun getInitialMessagesInARoom(
             @Header("Authorization", required = true) header: String,
@@ -108,6 +122,14 @@ class RoomController {
         outgoing.convertAndSend("$TOPIC_PREFIX/$roomId/gameTypeSet", gameTypeEnum)
     }
 
+    @MessageMapping(MSG_PREFIX + "/startGame")
+    fun startGame(
+            @Header("Authorization", required = true) header: String
+    ) {
+        val roomId = jwtUtils.getIdFromJwtToken(header)
+
+        roomService.startGame(roomId)
+    }
 
 
 }

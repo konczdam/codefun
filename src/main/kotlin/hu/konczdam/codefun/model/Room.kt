@@ -1,6 +1,7 @@
 package hu.konczdam.codefun.model
 
 import hu.konczdam.codefun.dataacces.UserDto
+import java.util.*
 
 data class Room constructor(
         val owner: UserDto,
@@ -13,6 +14,10 @@ data class Room constructor(
     val messages: MutableList<Message> = mutableListOf()
 
     var gameType: GameType = GameType.NORMAL
+
+    var gameStarted = false
+
+    var gameStartedDate: Date? = null
 
     fun subscribe(user: UserDto): Room {
         val newRoom = this.copy()
