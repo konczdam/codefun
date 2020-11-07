@@ -7,6 +7,7 @@ import hu.konczdam.codefun.model.Message
 import hu.konczdam.codefun.model.Room
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import java.util.*
 import javax.annotation.PostConstruct
 
 @Service
@@ -14,6 +15,9 @@ class RoomService {
 
     @Autowired
     private lateinit var userService: UserService
+
+    @Autowired
+    private lateinit var challengeService: ChallengeService
 
     private val roomList: MutableList<Room> = mutableListOf()
 
@@ -96,6 +100,19 @@ class RoomService {
             room.gameType = result
         }
         return result
+    }
+
+    fun startGame(roomId: String): Room {
+        val room = getRoomList().first { it.owner.id == roomId.toLong() }
+        val randomChallenge = challengeService.getRandomChallenge()
+        synchronized(this) {
+            room.apply {
+                gameStarted = true
+                gameStartedDate = Date()
+                challenge = randomChallenge
+            }
+        }
+        return room
     }
 
 }

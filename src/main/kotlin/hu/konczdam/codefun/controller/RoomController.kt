@@ -2,6 +2,7 @@ package hu.konczdam.codefun.controller
 
 import hu.konczdam.codefun.config.jwt.JwtUtils
 import hu.konczdam.codefun.dataacces.NewRoomDto
+import hu.konczdam.codefun.dataacces.RoomUpdateDto
 import hu.konczdam.codefun.dataacces.UserDto
 import hu.konczdam.codefun.model.Message
 import hu.konczdam.codefun.model.Room
@@ -126,10 +127,12 @@ class RoomController {
     fun startGame(
             @Header("Authorization", required = true) header: String
     ) {
-        val roomId = jwtUtils.getIdFromJwtToken(header)
+        val roomId = jwtUtils.getIdFromJwtToken(header) ?: throw Exception("Invalid token!")
 
-        roomService.startGame(roomId)
+        val room = roomService.startGame(roomId)
+        val roomUpdateDto = RoomUpdateDto(roomId.toLong(), gameStarted = true)
+        outgoing.convertAndSend("$TOPIC_PREFIX/updateRoom", roomUpdateDto)
+        outgoing.convertAndSend("$TOPIC_PREFIX/$roomId/gameStarted", room)
     }
-
 
 }

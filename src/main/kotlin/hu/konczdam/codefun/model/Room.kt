@@ -19,6 +19,8 @@ data class Room constructor(
 
     var gameStartedDate: Date? = null
 
+    var challenge: Challenge? = null
+
     fun subscribe(user: UserDto): Room {
         val newRoom = this.copy()
         newRoom.others.addAll(this.others)

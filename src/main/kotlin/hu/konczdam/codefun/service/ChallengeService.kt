@@ -14,4 +14,8 @@ class ChallengeService {
     fun findById(id: Long): Challenge? {
         return challengeRepository.findById(id).get()
     }
+
+    fun getRandomChallenge(): Challenge {
+        return challengeRepository.getRandomChallenge()
+    }
 }
