@@ -38,11 +38,12 @@ class JwtUtils(
                 .compact()
     }
 
-    fun getEmailFromJwtToken(token: String): String {
+    fun getEmailFromJwtToken(header: String): String {
+        val token = if (StringUtils.hasText(header) && header.startsWith("Bearer ")) header.substring(7) else header
         return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).body.subject
     }
 
-    fun getIdFromJwtToken(header: String): String? {
+    fun getIdFromJwtToken(header: String): String {
         val token = if (StringUtils.hasText(header) && header.startsWith("Bearer ")) header.substring(7) else header
         return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).body.id
     }

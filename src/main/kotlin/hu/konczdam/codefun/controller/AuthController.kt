@@ -65,7 +65,7 @@ class AuthController {
     @PostMapping("/register")
     fun registerUser(
             @RequestBody @Valid userCreationDto: UserCreationDto
-    ): ResponseEntity<*> {
+    ): ResponseEntity<String> {
         val user = userService.createUser(userCreationDto)
         return ResponseEntity.created(URI("/api/user/${user.id}")).body("User created!")
     }

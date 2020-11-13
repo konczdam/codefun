@@ -44,12 +44,12 @@ dependencies {
 	implementation("org.mapstruct:mapstruct:1.4.1.Final")
 	kapt("org.mapstruct:mapstruct-processor:1.4.1.Final")
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
-	developmentOnly("com.h2database:h2")
-	runtimeOnly("mysql:mysql-connector-java")
+	implementation("mysql:mysql-connector-java")
 	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 	testImplementation("org.springframework.boot:spring-boot-starter-test") {
 		exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
 	}
+	testImplementation("com.h2database:h2")
 	testImplementation("io.projectreactor:reactor-test")
 	testImplementation("org.springframework.security:spring-security-test")
 }

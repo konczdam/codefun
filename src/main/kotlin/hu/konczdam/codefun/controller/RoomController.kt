@@ -7,6 +7,7 @@ import hu.konczdam.codefun.dataacces.UserDto
 import hu.konczdam.codefun.model.Message
 import hu.konczdam.codefun.model.Room
 import hu.konczdam.codefun.service.RoomService
+import hu.konczdam.codefun.services.UserDetailsImpl
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.messaging.handler.annotation.DestinationVariable
 import org.springframework.messaging.handler.annotation.Header
@@ -14,7 +15,9 @@ import org.springframework.messaging.handler.annotation.MessageMapping
 import org.springframework.messaging.handler.annotation.SendTo
 import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.messaging.simp.annotation.SubscribeMapping
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.stereotype.Controller
+import java.security.Principal
 
 @Controller
 class RoomController {
@@ -40,12 +43,16 @@ class RoomController {
 
     @MessageMapping(MSG_PREFIX + "/addRoom")
     @SendTo(TOPIC_PREFIX + "/newRoom")
-    fun addRoom(newRoom: NewRoomDto, @Header("Authorization", required = true) header: String): Room {
-        val ownerId = jwtUtils.getIdFromJwtToken(header)?.toLong()
+    fun addRoom(
+            newRoom: NewRoomDto,
+            @Header("Authorization", required = true) header: String,
+            principal: UsernamePasswordAuthenticationToken
+    ): Room {
+        val ownerId = jwtUtils.getIdFromJwtToken(header).toLong()
         if (ownerId == null) {
             throw Exception("Invalid token!")
         }
-        return roomService.addRoom(ownerId, newRoom.description)
+        return roomService.addRoom((principal.principal as UserDetailsImpl).id, newRoom.description)
     }
 
 
