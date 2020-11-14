@@ -22,5 +22,6 @@ class WebsocketEventListener {
     @EventListener
     fun handleWebSocketConnectionLostListener(event: SessionDisconnectEvent) {
         logger.info("User disconnected")
+        logger.info(event.user.toString())
     }
 }

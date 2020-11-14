@@ -31,11 +31,11 @@ class RoomService {
         return newRoom
     }
 
-    fun removeRoom(ownerId: String, roomId: String) {
+    fun removeRoom(ownerId: Long, roomId: Long) {
         if (ownerId != roomId) {
             throw Exception("A user can only delete its own room!")
         }
-        val roomToDelete = getRoomList().first { it.owner.id == ownerId.toLong() }
+        val roomToDelete = getRoomList().first { it.owner.id == ownerId }
         synchronized(this) {
             roomList.remove(roomToDelete)
         }
@@ -79,6 +79,10 @@ class RoomService {
         }
     }
 
+    fun getMessagesFromRoom(roomId: Long): List<Message> {
+        return getRoomList().first { it.owner.id == roomId }.messages
+    }
+
     private fun addRoom(room: Room) {
         synchronized(this) {
             roomList.add(room)
@@ -102,8 +106,8 @@ class RoomService {
         return result
     }
 
-    fun startGame(roomId: String): Room {
-        val room = getRoomList().first { it.owner.id == roomId.toLong() }
+    fun startGame(roomId: Long): Room {
+        val room = getRoomList().first { it.owner.id == roomId }
         val randomChallenge = challengeService.getRandomChallenge()
         synchronized(this) {
             room.apply {

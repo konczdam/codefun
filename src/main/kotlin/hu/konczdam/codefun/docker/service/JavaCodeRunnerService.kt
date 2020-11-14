@@ -1,5 +1,6 @@
 package hu.konczdam.codefun.docker.service
 
+import hu.konczdam.codefun.docker.ParseResponse
 import hu.konczdam.codefun.docker.exec
 import hu.konczdam.codefun.docker.parseCodeRunnerOutput
 import hu.konczdam.codefun.model.ChallengeTest
@@ -53,7 +54,11 @@ class JavaCodeRunnerService: CodeRunnerService {
         }
     }
 
-    override fun executeCode(challengeId: Long, code: String, testIds: List<Long>) {
+    override fun executeCode(
+            challengeId: Long,
+            code: String,
+            testIds: List<Long>
+    ): ParseResponse {
         var cmd = createCommand(challengeId, code, testIds)
         semaphore.acquire()
         var containerId: String
@@ -64,14 +69,16 @@ class JavaCodeRunnerService: CodeRunnerService {
         cmd = cmd.replace("{{containerId}}", containerId)
         val result = exec( cmd = cmd, captureOutput = true)
         println("Code Executed: $containerId")
+        lateinit var parseResult: ParseResponse
         if (result != null) {
-            val parseResult = parseCodeRunnerOutput(result)
+            parseResult = parseCodeRunnerOutput(result)
             println(result)
         }
         synchronized(this) {
             runnerContainerIds.add(containerId)
         }
         semaphore.release()
+        return parseResult
     }
 
     private fun createCommand(challengeId: Long, code: String, testIds: List<Long>): String {

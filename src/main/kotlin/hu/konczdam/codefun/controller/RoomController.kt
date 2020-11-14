@@ -1,6 +1,5 @@
 package hu.konczdam.codefun.controller
 
-import hu.konczdam.codefun.config.jwt.JwtUtils
 import hu.konczdam.codefun.dataacces.NewRoomDto
 import hu.konczdam.codefun.dataacces.RoomUpdateDto
 import hu.konczdam.codefun.dataacces.UserDto
@@ -10,14 +9,12 @@ import hu.konczdam.codefun.service.RoomService
 import hu.konczdam.codefun.services.UserDetailsImpl
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.messaging.handler.annotation.DestinationVariable
-import org.springframework.messaging.handler.annotation.Header
 import org.springframework.messaging.handler.annotation.MessageMapping
 import org.springframework.messaging.handler.annotation.SendTo
 import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.messaging.simp.annotation.SubscribeMapping
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.stereotype.Controller
-import java.security.Principal
 
 @Controller
 class RoomController {
@@ -31,10 +28,11 @@ class RoomController {
     private lateinit var roomService: RoomService
 
     @Autowired
-    private lateinit var jwtUtils: JwtUtils
-
-    @Autowired
     private lateinit var outgoing: SimpMessagingTemplate
+
+    private fun getUserIdFromPrincipal(principal: UsernamePasswordAuthenticationToken): Long {
+        return (principal.principal as UserDetailsImpl).id
+    }
 
     @SubscribeMapping(MSG_PREFIX)
     fun roomList(): List<Room> {
@@ -45,99 +43,73 @@ class RoomController {
     @SendTo(TOPIC_PREFIX + "/newRoom")
     fun addRoom(
             newRoom: NewRoomDto,
-            @Header("Authorization", required = true) header: String,
             principal: UsernamePasswordAuthenticationToken
     ): Room {
-        val ownerId = jwtUtils.getIdFromJwtToken(header).toLong()
-        if (ownerId == null) {
-            throw Exception("Invalid token!")
-        }
-        return roomService.addRoom((principal.principal as UserDetailsImpl).id, newRoom.description)
+        return roomService.addRoom(getUserIdFromPrincipal(principal), newRoom.description)
     }
 
 
     @MessageMapping(MSG_PREFIX + "/joinRoom")
     @SendTo(TOPIC_PREFIX + "/updateRoom")
-    fun joinToRoom(@Header("Authorization", required = true) header: String, roomOwnerId: String): List<UserDto> {
-        val userId = jwtUtils.getIdFromJwtToken(header)?.toLong()
-        if (userId == null) {
-            throw Exception("Invalid token!")
-        }
+    fun joinToRoom(
+            roomOwnerId: String,
+            principal: UsernamePasswordAuthenticationToken
+    ): List<UserDto> {
 
-        return roomService.addUserToRoom(userId, roomOwnerId.toLong())
+        return roomService.addUserToRoom(getUserIdFromPrincipal(principal), roomOwnerId.toLong())
     }
 
     @MessageMapping(MSG_PREFIX + "/{roomId}/leaveRoom")
     @SendTo(TOPIC_PREFIX + "/updateRoom")
     fun leaveRoom(
-            @Header("Authorization", required = true) header: String,
-            @DestinationVariable roomId: String
+            @DestinationVariable roomId: String,
+            principal: UsernamePasswordAuthenticationToken
     ): List<UserDto> {
-        val userId = jwtUtils.getIdFromJwtToken(header)?.toLong()
-        if (userId == null) {
-            throw Exception("Invalid token!")
-        }
-
-        return roomService.removeUserFromRoom(userId, roomId.toLong())
+        return roomService.removeUserFromRoom(getUserIdFromPrincipal(principal), roomId.toLong())
     }
 
     @SubscribeMapping(MSG_PREFIX + "/{roomId}")
     fun getInitialMessagesInARoom(
-            @Header("Authorization", required = true) header: String,
             @DestinationVariable roomId: String
     ): List<Message> {
-       return roomService.getRoomList().first { it.owner.id == roomId.toLong()}.messages
+       return roomService.getMessagesFromRoom(roomId.toLong())
     }
 
     @MessageMapping(MSG_PREFIX + "/{roomId}/send")
     fun sendMessage(
-            @Header("Authorization", required = true) header: String,
             message: Message,
             @DestinationVariable roomId: String
     ) {
-        val userId = jwtUtils.getIdFromJwtToken(header)?.toLong()
-        if (userId != message.userId.toLong()) {
-            throw Exception("Invalid token!")
-        }
-        val messages = roomService.addMessage(roomId, message)
+        roomService.addMessage(roomId, message)
         outgoing.convertAndSend("$TOPIC_PREFIX/$roomId/newMessage", message)
     }
 
     @MessageMapping(MSG_PREFIX + "/{roomId}/close")
     fun closeRoom(
-            @Header("Authorization", required = true) header: String,
-            @DestinationVariable roomId: String
+            @DestinationVariable roomId: String,
+            principal: UsernamePasswordAuthenticationToken
     ) {
-        val userId = jwtUtils.getIdFromJwtToken(header)
-        if (userId == null) {
-            throw Exception("Invalid token!")
-        }
-
-        roomService.removeRoom(userId, roomId)
+        roomService.removeRoom(getUserIdFromPrincipal(principal), roomId.toLong())
         outgoing.convertAndSend("$TOPIC_PREFIX/$roomId/roomClosed", "Room closed")
     }
 
     @MessageMapping(MSG_PREFIX + "/setGameType")
     fun setSelectedGameType(
-            @Header("Authorization", required = true) header: String,
-            gameType: String
+            gameType: String,
+            principal: UsernamePasswordAuthenticationToken
     ) {
-        val roomId = jwtUtils.getIdFromJwtToken(header)?.toLong()
-        if (roomId == null) {
-            throw Exception("Invalid token!")
-        }
+        val roomId = getUserIdFromPrincipal(principal)
         val gameTypeEnum = roomService.setGameType(roomId, gameType)
         outgoing.convertAndSend("$TOPIC_PREFIX/$roomId/gameTypeSet", gameTypeEnum)
     }
 
     @MessageMapping(MSG_PREFIX + "/startGame")
     fun startGame(
-            @Header("Authorization", required = true) header: String
+            principal: UsernamePasswordAuthenticationToken
     ) {
-        val roomId = jwtUtils.getIdFromJwtToken(header) ?: throw Exception("Invalid token!")
-
+        val roomId = getUserIdFromPrincipal(principal)
         val room = roomService.startGame(roomId)
-        val roomUpdateDto = RoomUpdateDto(roomId.toLong(), gameStarted = true)
+        val roomUpdateDto = RoomUpdateDto(roomId, gameStarted = true)
         outgoing.convertAndSend("$TOPIC_PREFIX/updateRoom", roomUpdateDto)
         outgoing.convertAndSend("$TOPIC_PREFIX/$roomId/gameStarted", room)
     }
