@@ -2,7 +2,10 @@ package hu.konczdam.codefun.controller
 
 import hu.konczdam.codefun.dataacces.NewRoomDto
 import hu.konczdam.codefun.dataacces.RoomUpdateDto
+import hu.konczdam.codefun.dataacces.TestCaseExecuteDTO
 import hu.konczdam.codefun.dataacces.UserDto
+import hu.konczdam.codefun.docker.ParseResponse
+import hu.konczdam.codefun.docker.service.JavaCodeRunnerService
 import hu.konczdam.codefun.model.Message
 import hu.konczdam.codefun.model.Room
 import hu.konczdam.codefun.service.RoomService
@@ -12,6 +15,7 @@ import org.springframework.messaging.handler.annotation.DestinationVariable
 import org.springframework.messaging.handler.annotation.MessageMapping
 import org.springframework.messaging.handler.annotation.SendTo
 import org.springframework.messaging.simp.SimpMessagingTemplate
+import org.springframework.messaging.simp.annotation.SendToUser
 import org.springframework.messaging.simp.annotation.SubscribeMapping
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.stereotype.Controller
@@ -29,6 +33,9 @@ class RoomController {
 
     @Autowired
     private lateinit var outgoing: SimpMessagingTemplate
+
+    @Autowired
+    private lateinit var javaCodeRunnerService: JavaCodeRunnerService
 
     private fun getUserIdFromPrincipal(principal: UsernamePasswordAuthenticationToken): Long {
         return (principal.principal as UserDetailsImpl).id
@@ -112,6 +119,21 @@ class RoomController {
         val roomUpdateDto = RoomUpdateDto(roomId, gameStarted = true)
         outgoing.convertAndSend("$TOPIC_PREFIX/updateRoom", roomUpdateDto)
         outgoing.convertAndSend("$TOPIC_PREFIX/$roomId/gameStarted", room)
+    }
+
+    @MessageMapping(MSG_PREFIX + "/{roomId}/executeCode")
+    @SendToUser("/topic/codeRunResponse")
+    fun executeCode(
+            @DestinationVariable roomId: String,
+            testCaseExecuteDTO: TestCaseExecuteDTO,
+            principal: UsernamePasswordAuthenticationToken
+    ): ParseResponse {
+        val result = roomService.executeCodeForUser(
+                roomId = roomId.toLong(),
+                userId = getUserIdFromPrincipal(principal),
+                testCaseExecuteDTO = testCaseExecuteDTO
+        )
+        return result
     }
 
 }

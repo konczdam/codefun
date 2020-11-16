@@ -46,8 +46,9 @@ fun parseCodeRunnerOutput(output: String): ParseResponse {
     if (lines[0].contains("compileJava FAILED")) {
         lines = lines.filterIndexed { index, s -> index > 0 }
 
+        val errorMessage = lines.joinToString { it }
         return ParseResponse(
-                errorMessage = lines.joinToString { it -> it }
+                errorMessage = if (errorMessage == "") "compilation error" else errorMessage
         )
     }
 

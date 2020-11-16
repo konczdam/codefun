@@ -1,5 +1,6 @@
 package hu.konczdam.codefun.model
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import hu.konczdam.codefun.dataacces.UserDto
 import java.util.*
 
@@ -17,6 +18,7 @@ data class Room constructor(
 
     var gameStarted = false
 
+    @JsonIgnore
     var gameStartedDate: Date? = null
 
     var challenge: Challenge? = null

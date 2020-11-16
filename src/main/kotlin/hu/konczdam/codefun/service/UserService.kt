@@ -28,12 +28,6 @@ class UserService {
 
         userCreationDto.roles.forEach { role ->
             when (role) {
-                "admin" -> {
-                    var adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
-                    if (adminRole == null)
-                        adminRole = roleRepository.save(Role(name = ERole.ROLE_ADMIN))
-                    roles.add(adminRole)
-                }
                 "user" -> {
                     var userRole = roleRepository.findByName(ERole.ROLE_USER)
                     if (userRole == null)
@@ -62,6 +56,21 @@ class UserService {
             return user.get()
         }
         throw Exception("User not found in DB")
+    }
+
+    @Transactional
+    fun incrementGamesPlayed(userIds: List<Long>) {
+        val users = userRepository.findAllById(userIds)
+        users.forEach { it.gamesPlayed++ }
+        userRepository.saveAll(users)
+    }
+
+    @Transactional
+    fun incrementGamesPlayedAndGamesWon(userId: Long) {
+        val user = getUserById(userId)
+        user.gamesPlayed++
+        user.gamesWon++
+        userRepository.save(user)
     }
 
 }

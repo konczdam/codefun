@@ -17,7 +17,7 @@ import javax.annotation.PreDestroy
 
 @Component
 @Qualifier("JAVA")
-class JavaCodeRunnerService: CodeRunnerService {
+class JavaCodeRunnerService : CodeRunnerService {
 
     @Value("\${konczdam.app.coderunnerexecutorcount.java}")
     private var numberOfJavaExecutorDockerContainers: Int = 0
@@ -67,7 +67,7 @@ class JavaCodeRunnerService: CodeRunnerService {
         }
         println("starting code execution")
         cmd = cmd.replace("{{containerId}}", containerId)
-        val result = exec( cmd = cmd, captureOutput = true)
+        val result = exec(cmd = cmd, captureOutput = true)
         println("Code Executed: $containerId")
         lateinit var parseResult: ParseResponse
         if (result != null) {
@@ -97,17 +97,33 @@ class JavaCodeRunnerService: CodeRunnerService {
             tests.add(challengeTest)
         }
 
-        val escapedCode = code.replace("\"", "\\\"")
+        val escapedCode = prepareCode(code).replace("\"", "\\\"")
         var result = "docker exec {{containerId}} node run -l java -c \"$escapedCode\" -f "
 
         var testCode = "\"import org.junit.Assert;         import org.junit.Test;  import java.io.*;  public class SolutionTest${atomicInteger.incrementAndGet()} {  "
 
         tests.forEach {
-            val testCase =  "@Test     public void ${it.displayName}() throws InterruptedException, IOException {         String input = \\\"${it.input}\\\";         System.setIn(new ByteArrayInputStream(input.getBytes()));           PrintStream printStream = new PrintStream(new File(\\\"aaa.txt\\\"));         PrintStream pr = System.out;         System.setOut(printStream);          Solution.main(new String[]{});          System.setOut(pr);         String finalString = new BufferedReader(new InputStreamReader(new FileInputStream(new File(\\\"aaa.txt\\\")))).readLine();         Assert.assertEquals(\\\"${it.expectedOutput}\\\", finalString);     }"
+            val testCase = "@Test     public void ${it.displayName}() throws InterruptedException, IOException {         String input = \\\"${it.input}\\\";         System.setIn(new ByteArrayInputStream(input.getBytes()));           PrintStream printStream = new PrintStream(new File(\\\"aaa.txt\\\"));         PrintStream pr = System.out;         System.setOut(printStream);          Solution.main(new String[]{});          System.setOut(pr);         String finalString = new BufferedReader(new InputStreamReader(new FileInputStream(new File(\\\"aaa.txt\\\")))).readLine();         Assert.assertEquals(\\\"${it.expectedOutput}\\\", finalString);     }"
             testCode += testCase
         }
         result = result + testCode + "}\""
         return result
+    }
+
+    private fun prepareCode(code: String): String {
+        return code.split("\n")
+                .asSequence()
+                .map { it.trim() }
+                .filter { !it.startsWith("//") }
+                .map {
+                    if (it.contains("//")) {
+                        it.substring(0, it.indexOf("//"))
+                    } else {
+                        it
+                    }
+                }
+                .joinToString(separator = " ") { it }
+
     }
 
 }

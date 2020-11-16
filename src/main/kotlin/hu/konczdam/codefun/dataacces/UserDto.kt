@@ -9,4 +9,12 @@ data class UserDto(
         var gamesPlayed: Int = 0,
         val preferredLanguages: MutableSet<Language>,
         val id: Long
-)
+) {
+    var successRate: Float = 0.0f
+
+    var timeTaken: Long = 0
+
+    var finalCodeLength: Int = 0
+
+    var submitted = false
+}
