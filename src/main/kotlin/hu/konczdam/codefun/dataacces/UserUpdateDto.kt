@@ -1,7 +1,7 @@
 package hu.konczdam.codefun.dataacces
 
 data class UserUpdateDto(
-        val id: Long,
+        val userId: Long,
 
         val successRate: Float,
 

@@ -10,7 +10,6 @@ import hu.konczdam.codefun.docker.service.CodeExecutorManagerService
 import hu.konczdam.codefun.model.GameType
 import hu.konczdam.codefun.model.Message
 import hu.konczdam.codefun.model.Room
-import hu.konczdam.codefun.model.User
 import kotlinx.coroutines.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.messaging.simp.SimpMessagingTemplate
@@ -180,10 +179,11 @@ class RoomService {
             userId: Long,
             testCaseExecuteDTO: TestCaseExecuteDTO
     ): ParseResponse {
+        val dataOfSubmitting = Date()
         val room = getRoomList().first { it.owner.id == roomId }
         val user = (room.others + room.owner).first { it.id == userId }
         var userUpdateDto = UserUpdateDto(
-                id = userId,
+                userId = userId,
                 successRate = user.successRate,
                 submitted = false,
                 status = "Running testcases"
@@ -209,7 +209,7 @@ class RoomService {
             user.apply {
                 submitted = true
                 finalCodeLength = testCaseExecuteDTO.code.length
-                timeTaken = codeRunResponse.timeTaken
+                timeTaken = dataOfSubmitting.time - room.gameStartedDate!!.time
             }
             checkEverybodySubmitted(room)
         } else {

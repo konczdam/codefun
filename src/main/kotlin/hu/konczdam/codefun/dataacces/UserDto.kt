@@ -12,7 +12,7 @@ data class UserDto(
 ) {
     var successRate: Float = 0.0f
 
-    var timeTaken: Int = 0
+    var timeTaken: Long = 0
 
     var finalCodeLength: Int = 0
 
