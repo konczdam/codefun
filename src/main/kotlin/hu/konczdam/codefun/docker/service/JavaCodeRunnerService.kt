@@ -1,11 +1,12 @@
 package hu.konczdam.codefun.docker.service
 
 import hu.konczdam.codefun.docker.ParseResponse
-import hu.konczdam.codefun.docker.exec
-import hu.konczdam.codefun.docker.parseCodeRunnerOutput
+import hu.konczdam.codefun.docker.CodeRunnerUtil.Companion.exec
+import hu.konczdam.codefun.docker.CodeRunnerUtil.Companion.parseCodeRunnerOutput
 import hu.konczdam.codefun.model.ChallengeTest
 import hu.konczdam.codefun.service.ChallengeService
 import hu.konczdam.codefun.service.ChallengeTestService
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
@@ -18,6 +19,10 @@ import javax.annotation.PreDestroy
 @Component
 @Qualifier("JAVA")
 class JavaCodeRunnerService : CodeRunnerService {
+
+    companion object {
+        private val logger = LoggerFactory.getLogger(JavaCodeRunnerService::class.java)
+    }
 
     @Value("\${konczdam.app.coderunnerexecutorcount.java}")
     private var numberOfJavaExecutorDockerContainers: Int = 0
@@ -49,7 +54,7 @@ class JavaCodeRunnerService : CodeRunnerService {
     @PreDestroy
     private fun stopDockerContainers() {
         for (id in runnerContainerIds) {
-            println("stopping container with id: $id")
+            logger.info("stopping container with id: $id")
             exec(cmd = "docker stop $id", captureOutput = false)
         }
     }
@@ -65,14 +70,14 @@ class JavaCodeRunnerService : CodeRunnerService {
         synchronized(this) {
             containerId = runnerContainerIds.removeAt(0)
         }
-        println("starting code execution")
+        logger.info("starting code execution")
         cmd = cmd.replace("{{containerId}}", containerId)
         val result = exec(cmd = cmd, captureOutput = true)
-        println("Code Executed: $containerId")
+        logger.info("Code Executed with container: $containerId")
         lateinit var parseResult: ParseResponse
         if (result != null) {
             parseResult = parseCodeRunnerOutput(result)
-            println(result)
+            logger.info(result)
         }
         synchronized(this) {
             runnerContainerIds.add(containerId)
@@ -98,7 +103,7 @@ class JavaCodeRunnerService : CodeRunnerService {
         }
 
         val escapedCode = prepareCode(code).replace("\"", "\\\"")
-        var result = "docker exec {{containerId}} node run -l java -c \"$escapedCode\" -f "
+        var result = "docker exec {{containerId}} node run -l java --format json --timeout 10000 -c \"$escapedCode\" -f "
 
         var testCode = "\"import org.junit.Assert;         import org.junit.Test;  import java.io.*;  public class SolutionTest${atomicInteger.incrementAndGet()} {  "
 

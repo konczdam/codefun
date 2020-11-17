@@ -12,7 +12,7 @@ class AuthEntryPointJwt: AuthenticationEntryPoint {
 
 
     companion object {
-        val logger = LoggerFactory.getLogger(AuthEntryPointJwt::class.java)
+        private val logger = LoggerFactory.getLogger(AuthEntryPointJwt::class.java)
     }
 
     override fun commence(request: HttpServletRequest?, response: HttpServletResponse?, authException: AuthenticationException?) {

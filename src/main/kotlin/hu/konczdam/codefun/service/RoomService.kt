@@ -140,7 +140,9 @@ class RoomService {
 
         val job: Job = GlobalScope.launch(context = Dispatchers.Default) {
             delay((15 * 60 + 4) * 1000)
-            endGame(roomId)
+            if (isActive) {
+                endGame(roomId)
+            }
         }
         roomCloseJobs.plusAssign(roomId to job)
         return room
@@ -178,7 +180,6 @@ class RoomService {
             userId: Long,
             testCaseExecuteDTO: TestCaseExecuteDTO
     ): ParseResponse {
-        val dateOfSubmitting = Date()
         val room = getRoomList().first { it.owner.id == roomId }
         val user = (room.others + room.owner).first { it.id == userId }
         var userUpdateDto = UserUpdateDto(
@@ -205,9 +206,11 @@ class RoomService {
 
         if (testCaseExecuteDTO.submitted) {
             userUpdateDto = userUpdateDto.copy(successRate =  newSuccessRate, status = "submitted", submitted = true)
-            user.submitted = true
-            user.finalCodeLength = testCaseExecuteDTO.code.length
-            user.timeTaken = dateOfSubmitting.time -  room.gameStartedDate!!.time
+            user.apply {
+                submitted = true
+                finalCodeLength = testCaseExecuteDTO.code.length
+                timeTaken = codeRunResponse.timeTaken
+            }
             checkEverybodySubmitted(room)
         } else {
             userUpdateDto = userUpdateDto.copy(successRate =  newSuccessRate, status = "coding...")

@@ -17,7 +17,7 @@ import javax.servlet.http.HttpServletResponse
 class AuthTokenFilter: OncePerRequestFilter() {
 
     companion object {
-        val logger = LoggerFactory.getLogger(AuthTokenFilter::class.java)
+        private val logger = LoggerFactory.getLogger(AuthTokenFilter::class.java)
     }
 
     @Autowired
