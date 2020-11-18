@@ -8,6 +8,7 @@ import hu.konczdam.codefun.dataacces.UserUpdateDto
 import hu.konczdam.codefun.docker.ParseResponse
 import hu.konczdam.codefun.docker.service.CodeExecutorManagerService
 import hu.konczdam.codefun.model.GameType
+import hu.konczdam.codefun.model.Language
 import hu.konczdam.codefun.model.Message
 import hu.konczdam.codefun.model.Room
 import kotlinx.coroutines.*
@@ -154,7 +155,10 @@ class RoomService {
                 gameType = room.gameType
         )
 
-        outgoing.convertAndSend("${RoomController.TOPIC_PREFIX}/$roomId/gameEnd", peopleInTheRoomOrdered)
+        outgoing.convertAndSend(
+                "${RoomController.TOPIC_PREFIX}/$roomId/gameEnd",
+                peopleInTheRoomOrdered.map { it.id }
+        )
 
         val winner = peopleInTheRoomOrdered[0]
         userService.incrementGamesPlayedAndGamesWon(winner.id)
@@ -168,9 +172,12 @@ class RoomService {
             gameType: GameType
     ): List<UserDto> {
         return when (gameType) {
-            GameType.NORMAL -> players.sortedWith( compareBy({ it.successRate }, { it.timeTaken }))
+            GameType.NORMAL ->
+                players.sortedWith(compareByDescending<UserDto> { it.successRate }.thenBy { it.timeTaken })
 
-            GameType.CODE_GOLF -> players.sortedWith( compareBy({ it.successRate }, { it.finalCodeLength }))
+
+            GameType.CODE_GOLF ->
+                players.sortedWith(compareByDescending<UserDto> { it.successRate }.thenBy { it.finalCodeLength })
         }
     }
 
@@ -182,38 +189,55 @@ class RoomService {
         val dataOfSubmitting = Date()
         val room = getRoomList().first { it.owner.id == roomId }
         val user = (room.others + room.owner).first { it.id == userId }
+        val language = Language.valueOf(testCaseExecuteDTO.language)
+
         var userUpdateDto = UserUpdateDto(
                 userId = userId,
                 successRate = user.successRate,
-                submitted = false,
-                status = "Running testcases"
+                submitted = testCaseExecuteDTO.submitted,
+                status = if (testCaseExecuteDTO.submitted) "submitting" else "Running testcases",
+                language = language.name
         )
 
         outgoing.convertAndSend("${RoomController.TOPIC_PREFIX}/$roomId/userUpdate", userUpdateDto)
 
-        val codeRunResponse = codeExecutorManagerService.executeJavaCode(
-                challengeId =  testCaseExecuteDTO.challengeId.toLong(),
-                code = testCaseExecuteDTO.code,
-                testIds = testCaseExecuteDTO.testIds.map { it.toLong() }
-        )
 
-        val newSuccessRate: Float = if ( testCaseExecuteDTO.testIds.size == 1) {
-            user.successRate
-        } else {
-            codeRunResponse.testResults.filter { it.passed }.count().toFloat() /
-                    codeRunResponse.testResults.size
+        val codeRunResponse = when (language) {
+            Language.JAVA -> codeExecutorManagerService.executeJavaCode(
+                    challengeId =  testCaseExecuteDTO.challengeId.toLong(),
+                    code = testCaseExecuteDTO.code,
+                    testIds = testCaseExecuteDTO.testIds.map { it.toLong() }
+            )
+            else -> throw UnsupportedOperationException("this language is not supported yet: $language")
         }
 
+
         if (testCaseExecuteDTO.submitted) {
-            userUpdateDto = userUpdateDto.copy(successRate =  newSuccessRate, status = "submitted", submitted = true)
+            val newSuccessRate: Float = if ( testCaseExecuteDTO.testIds.size == 1) {
+                user.successRate
+            } else {
+                codeRunResponse.testResults.filter { it.passed }.count().toFloat() /
+                        testCaseExecuteDTO.testIds.size
+            }
+            val timeTaken = dataOfSubmitting.time - room.gameStartedDate!!.time
+            userUpdateDto = userUpdateDto.copy(
+                    successRate =  newSuccessRate,
+                    status = "submitted",
+                    submitted = true,
+                    finalCodeLength = testCaseExecuteDTO.code.length,
+                    timeTaken = timeTaken.toInt(), // time taken to solve the problem
+                    code = testCaseExecuteDTO.code,
+                    runTime = codeRunResponse.timeTaken // runtime
+            )
             user.apply {
                 submitted = true
                 finalCodeLength = testCaseExecuteDTO.code.length
-                timeTaken = dataOfSubmitting.time - room.gameStartedDate!!.time
+                this.timeTaken = timeTaken
+                successRate = newSuccessRate
             }
             checkEverybodySubmitted(room)
         } else {
-            userUpdateDto = userUpdateDto.copy(successRate =  newSuccessRate, status = "coding...")
+            userUpdateDto = userUpdateDto.copy( status = "coding...")
         }
         outgoing.convertAndSend("${RoomController.TOPIC_PREFIX}/$roomId/userUpdate", userUpdateDto)
         return codeRunResponse
