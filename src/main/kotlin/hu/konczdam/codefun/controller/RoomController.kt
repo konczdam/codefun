@@ -97,7 +97,7 @@ class RoomController {
             principal: UsernamePasswordAuthenticationToken
     ) {
         roomService.removeRoom(getUserIdFromPrincipal(principal), roomId.toLong())
-        outgoing.convertAndSend("$TOPIC_PREFIX/$roomId/roomClosed", "Room closed")
+        outgoing.convertAndSend("$TOPIC_PREFIX/roomClosed", roomId)
     }
 
     @MessageMapping(MSG_PREFIX + "/setGameType")

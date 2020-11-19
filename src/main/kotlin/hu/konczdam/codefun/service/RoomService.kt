@@ -255,4 +255,21 @@ class RoomService {
         }
     }
 
+    fun removeUserFromGame(userId: Long) {
+        val rooms = getRoomList()
+        val roomOwnedByUser = rooms.filter { it.owner.id.equals(userId) }.firstOrNull()
+        if (roomOwnedByUser != null) {
+            removeRoom(userId, userId)
+            outgoing.convertAndSend("${RoomController.TOPIC_PREFIX}/roomClosed", userId)
+            return;
+        }
+
+        val roomUserIsIn = rooms.filter { it.others.any { user -> user.id.equals(userId)}}.firstOrNull()
+        if (roomUserIsIn != null) {
+            val roomId = roomUserIsIn.owner.id
+            val usersLeftInRoom = removeUserFromRoom(userId, roomId)
+            outgoing.convertAndSend("${RoomController.TOPIC_PREFIX}/updateRoom", usersLeftInRoom)
+        }
+    }
+
 }
