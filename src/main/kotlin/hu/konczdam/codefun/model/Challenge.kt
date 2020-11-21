@@ -9,8 +9,8 @@ data class Challenge(
 
         val description: String,
 
-        @ElementCollection(fetch = FetchType.EAGER)
-        val availableLanguages: MutableSet<Language>,
+//        @ElementCollection(fetch = FetchType.EAGER)
+//        val availableLanguages: MutableSet<Language>,
         
         @OneToMany(cascade = arrayOf(CascadeType.ALL), fetch = FetchType.EAGER)
         val challengeTests: MutableList<ChallengeTest> = mutableListOf()

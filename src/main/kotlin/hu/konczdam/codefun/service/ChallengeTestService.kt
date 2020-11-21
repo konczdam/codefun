@@ -11,7 +11,7 @@ class ChallengeTestService {
     @Autowired
     private lateinit var challengeTestRepository: ChallengeTestRepository
 
-    fun findByIdAndChallengeId(id: Long, challengeId: Long): ChallengeTest? {
-        return challengeTestRepository.findByIdAndChallengeId(id, challengeId)
+    fun findById(id: Long): ChallengeTest? {
+        return challengeTestRepository.findById(id).orElse(null)
     }
 }

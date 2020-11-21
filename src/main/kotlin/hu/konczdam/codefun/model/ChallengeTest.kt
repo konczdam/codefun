@@ -15,7 +15,7 @@ data class ChallengeTest(
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(referencedColumnName = "id")
     @JsonIgnore
-    lateinit var challenge: Challenge
+    var challenge: Challenge? = null
 
     @Id
     @GeneratedValue

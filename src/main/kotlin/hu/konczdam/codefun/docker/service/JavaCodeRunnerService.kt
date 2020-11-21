@@ -95,7 +95,7 @@ class JavaCodeRunnerService : CodeRunnerService {
         val tests = mutableListOf<ChallengeTest>()
 
         testIds.forEach {
-            val challengeTest = challengeTestService.findByIdAndChallengeId(it, challengeId)
+            val challengeTest = challengeTestService.findById(it)
             if (challengeTest == null) {
                 throw Exception("ChallengeTest not found in database!")
             }

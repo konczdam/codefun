@@ -9,5 +9,4 @@ import javax.transaction.Transactional
 @Transactional
 interface ChallengeTestRepository: JpaRepository<ChallengeTest, Long> {
 
-    fun findByIdAndChallengeId(id: Long, challengeId: Long): ChallengeTest?
 }
