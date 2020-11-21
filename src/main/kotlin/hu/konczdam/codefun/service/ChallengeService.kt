@@ -28,7 +28,7 @@ class ChallengeService {
         val sortDirection = getDirectionValueFromString(pageRequest.sortDirection)
         val springPageRequest = SpringPageRquest.of(
                 pageRequest.page,
-                pageRequest.size,
+                pageRequest.size.let { if (it > 0 ) it else Int.MAX_VALUE },
                 Sort.by(sortDirection, pageRequest.sortProperty)
         )
         return challengeRepository.findAll(springPageRequest)
@@ -37,7 +37,7 @@ class ChallengeService {
 
     private fun getDirectionValueFromString(direction: String): Sort.Direction {
         try {
-            return Sort.Direction.valueOf(direction)
+            return Sort.Direction.fromString(direction)
         } catch (e: IllegalArgumentException) {
             return Sort.DEFAULT_DIRECTION
         }
