@@ -6,4 +6,8 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface FriendRequestRepository: JpaRepository<FriendRequest, Long?> {
+
+    fun deleteByRequesterIdAndReceiverId(requesterId: Long, receiverId: Long): Int
+
+    fun findByRequesterIdAndReceiverId(requesterId: Long, receiverId: Long): FriendRequest
 }

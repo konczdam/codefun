@@ -18,4 +18,12 @@ data class FriendRequest(
     @Id
     @GeneratedValue
     var id: Long? = null
+
+    override fun toString(): String {
+        return """
+            requesterId: ${requester.id},
+            receiverId: ${requester.id},
+            id: $id
+        """.trimIndent()
+    }
 }

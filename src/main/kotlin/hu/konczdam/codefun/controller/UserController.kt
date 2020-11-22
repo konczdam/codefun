@@ -24,8 +24,8 @@ class UserController {
     @Autowired
     private lateinit var userService: UserService
 
-    @GetMapping
-    fun getUsers(
+    @GetMapping("/not-friends")
+    fun getNonFriendsUsers(
         @RequestParam page: String,
         @RequestParam size: String,
         @RequestParam sortProperty: String,
@@ -33,12 +33,78 @@ class UserController {
         @RequestParam name: String?,
         principal: UsernamePasswordAuthenticationToken
     ): ResponseEntity<Page<UserDto>> {
-        val pageOfUsers = userService.getPageOfUsersExcludingCaller(
+        val pageOfUsers = userService.getPageOfNotFriendUsers(
                 PageRequest(
                     page = page.toInt(),
                     size = size.toInt(),
                     sortProperty = sortProperty,
                     sortDirection = if  (sortDirection != null) sortDirection else "asc"
+                ),
+                name,
+                getUserIdFromPrincipal(principal)
+        )
+        return ResponseEntity.ok(pageOfUsers.map(User::toDto))
+    }
+
+    @GetMapping("/friend-requests-sent-to")
+    fun getUsersSendRequestSentTo(
+            @RequestParam page: String,
+            @RequestParam size: String,
+            @RequestParam sortProperty: String,
+            @RequestParam sortDirection: String?,
+            @RequestParam name: String?,
+            principal: UsernamePasswordAuthenticationToken
+    ): ResponseEntity<Page<UserDto>> {
+        val pageOfUsers = userService.getPageOfUsersFriendRequestSentTo(
+                PageRequest(
+                        page = page.toInt(),
+                        size = size.toInt(),
+                        sortProperty = sortProperty,
+                        sortDirection = if  (sortDirection != null) sortDirection else "asc"
+                ),
+                name,
+                getUserIdFromPrincipal(principal)
+        )
+        return ResponseEntity.ok(pageOfUsers.map(User::toDto))
+    }
+
+    @GetMapping("/incoming-friend-requests")
+    fun getIncomingFriendRequests(
+            @RequestParam page: String,
+            @RequestParam size: String,
+            @RequestParam sortProperty: String,
+            @RequestParam sortDirection: String?,
+            @RequestParam name: String?,
+            principal: UsernamePasswordAuthenticationToken
+    ): ResponseEntity<Page<UserDto>> {
+        val pageOfUsers = userService.getPageOfUsersWhoSentFriendRequests(
+                PageRequest(
+                        page = page.toInt(),
+                        size = size.toInt(),
+                        sortProperty = sortProperty,
+                        sortDirection = if  (sortDirection != null) sortDirection else "asc"
+                ),
+                name,
+                getUserIdFromPrincipal(principal)
+        )
+        return ResponseEntity.ok(pageOfUsers.map(User::toDto))
+    }
+
+    @GetMapping("/friends")
+    fun getPageOfFriends(
+            @RequestParam page: String,
+            @RequestParam size: String,
+            @RequestParam sortProperty: String,
+            @RequestParam sortDirection: String?,
+            @RequestParam name: String?,
+            principal: UsernamePasswordAuthenticationToken
+    ): ResponseEntity<Page<UserDto>> {
+        val pageOfUsers = userService.getPageOfFriends(
+                PageRequest(
+                        page = page.toInt(),
+                        size = size.toInt(),
+                        sortProperty = sortProperty,
+                        sortDirection = if  (sortDirection != null) sortDirection else "asc"
                 ),
                 name,
                 getUserIdFromPrincipal(principal)

@@ -80,21 +80,6 @@ class UserService {
         userRepository.save(user)
     }
 
-    @Transactional(readOnly =  true)
-    fun getPageOfUsersExcludingCaller(
-            pageRequest: PageRequest,
-            name: String?,
-            callerId: Long
-    ): Page<User> {
-        val sortDirection = getDirectionValueFromString(pageRequest.sortDirection)
-        val springPageRequest = SpringPageRequest.of(
-                pageRequest.page,
-                pageRequest.size.let { if (it > 0 ) it else Int.MAX_VALUE },
-                Sort.by(sortDirection, pageRequest.sortProperty)
-        )
-        return userRepository.findFiltereAndSortedUsers(name, callerId, springPageRequest)
-    }
-
     @Throws(IllegalArgumentException::class)
     @Transactional
     fun changePasswordForUser(userId: Long, passwordUpdateRequestDto: PasswordUpdateRequestDto) {
@@ -105,6 +90,64 @@ class UserService {
         }
         user.password = BCrypt.hashpw(passwordUpdateRequestDto.newPassword, BCrypt.gensalt())
         userRepository.save(user)
+    }
+
+    @Transactional(readOnly =  true)
+    fun getPageOfNotFriendUsers(
+            pageRequest: PageRequest,
+            name: String?,
+            callerId: Long
+    ): Page<User> {
+        val sortDirection = getDirectionValueFromString(pageRequest.sortDirection)
+        val springPageRequest = SpringPageRequest.of(
+                pageRequest.page,
+                pageRequest.size.let { if (it > 0 ) it else Int.MAX_VALUE },
+                Sort.by(sortDirection, pageRequest.sortProperty)
+        )
+        return userRepository.findNonFriendsUsers(name, callerId, springPageRequest)
+    }
+
+
+    fun getPageOfUsersFriendRequestSentTo(
+            pageRequest: PageRequest,
+            name: String?,
+            callerId: Long
+    ): Page<User> {
+        val sortDirection = getDirectionValueFromString(pageRequest.sortDirection)
+        val springPageRequest = SpringPageRequest.of(
+                pageRequest.page,
+                pageRequest.size.let { if (it > 0 ) it else Int.MAX_VALUE },
+                Sort.by(sortDirection, pageRequest.sortProperty)
+        )
+        return userRepository.findUsersFriendRequestSentTo(name, callerId, springPageRequest)
+    }
+
+    fun getPageOfUsersWhoSentFriendRequests(
+            pageRequest: PageRequest,
+            name: String?,
+            callerId: Long
+    ): Page<User>  {
+        val sortDirection = getDirectionValueFromString(pageRequest.sortDirection)
+        val springPageRequest = SpringPageRequest.of(
+                pageRequest.page,
+                pageRequest.size.let { if (it > 0 ) it else Int.MAX_VALUE },
+                Sort.by(sortDirection, pageRequest.sortProperty)
+        )
+        return userRepository.findUsersThatSentFriendRequests(name, callerId, springPageRequest)
+    }
+
+    fun getPageOfFriends(
+            pageRequest: PageRequest,
+            name: String?,
+            callerId: Long
+    ): Page<User>  {
+        val sortDirection = getDirectionValueFromString(pageRequest.sortDirection)
+        val springPageRequest = SpringPageRequest.of(
+                pageRequest.page,
+                pageRequest.size.let { if (it > 0 ) it else Int.MAX_VALUE },
+                Sort.by(sortDirection, pageRequest.sortProperty)
+        )
+        return userRepository.findFriends(name, callerId, springPageRequest)
     }
 
 }

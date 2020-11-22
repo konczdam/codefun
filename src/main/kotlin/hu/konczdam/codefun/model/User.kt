@@ -26,28 +26,8 @@ data class User(
         val preferredLanguages: MutableSet<Language>,
 
         @ManyToMany(fetch = FetchType.EAGER)
-        val roles: Set<Role> = mutableSetOf(),
+        val roles: Set<Role> = mutableSetOf()
 
-        @JsonIgnore
-        @ManyToMany
-        @JoinTable(name = "tbl_friends",
-                joinColumns = arrayOf(JoinColumn(name = "personId")),
-                inverseJoinColumns = arrayOf(JoinColumn(name = "friendId")))
-        val friends: MutableSet<User> = mutableSetOf(),
-
-        @JsonIgnore
-        @ManyToMany
-//        @ManyToMany(mappedBy = "friends")
-        @JoinTable(name = "tbl_friends",
-                joinColumns = arrayOf(JoinColumn(name = "friendId")),
-                inverseJoinColumns = arrayOf(JoinColumn(name = "personId")))
-        val friendOf: MutableSet<User> = mutableSetOf(),
-
-        @OneToMany(mappedBy = "requester", fetch = FetchType.LAZY)
-        val outgoingFriendRequests: List<FriendRequest> = mutableListOf(),
-
-        @OneToMany(mappedBy = "receiver", fetch = FetchType.LAZY)
-        val incomingFriendRequests: List<FriendRequest> = mutableListOf()
 
 ) {
 
@@ -55,4 +35,24 @@ data class User(
     @GeneratedValue
     var id: Long? = null
 
+    @JsonIgnore
+    @ManyToMany
+    @JoinTable(name = "tbl_friends",
+            joinColumns = arrayOf(JoinColumn(name = "personId")),
+            inverseJoinColumns = arrayOf(JoinColumn(name = "friendId")))
+    val friends: MutableSet<User> = mutableSetOf()
+
+    @JsonIgnore
+    @ManyToMany
+//        @ManyToMany(mappedBy = "friends")
+    @JoinTable(name = "tbl_friends",
+            joinColumns = arrayOf(JoinColumn(name = "friendId")),
+            inverseJoinColumns = arrayOf(JoinColumn(name = "personId")))
+    val friendOf: MutableSet<User> = mutableSetOf()
+
+    @OneToMany(mappedBy = "requester", fetch = FetchType.LAZY)
+    val outgoingFriendRequests: List<FriendRequest> = mutableListOf()
+
+    @OneToMany(mappedBy = "receiver", fetch = FetchType.LAZY)
+    val incomingFriendRequests: List<FriendRequest> = mutableListOf()
 }

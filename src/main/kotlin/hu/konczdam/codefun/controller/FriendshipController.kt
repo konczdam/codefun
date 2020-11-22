@@ -30,4 +30,36 @@ class FriendshipController {
         return ResponseEntity.ok("friendshirequest added!")
     }
 
+    @PostMapping("/cancelRequest")
+    fun cancelRequest(
+            @RequestBody friendshipRequestDto: FriendshipRequestDto
+    ): ResponseEntity<*> {
+        friendshipService.removeRequest(friendshipRequestDto)
+        return ResponseEntity.ok("request was successfully cancelled!")
+    }
+
+    @PostMapping("/rejectRequest")
+    fun rejectRequest(
+            @RequestBody friendshipRequestDto: FriendshipRequestDto
+    ): ResponseEntity<*> {
+        friendshipService.removeRequest(friendshipRequestDto)
+        return ResponseEntity.ok("request was successfully rejected!")
+
+    }
+
+    @PostMapping("/acceptRequest")
+    fun acceptRequest(
+            @RequestBody friendshipRequestDto: FriendshipRequestDto
+    ): ResponseEntity<*> {
+        friendshipService.acceptRequest(friendshipRequestDto)
+        return ResponseEntity.ok("request was successfully accepted!")
+    }
+
+    @PostMapping("/removeFriend")
+    fun removeFriend(
+            @RequestBody friendshipRequestDto: FriendshipRequestDto
+    ): ResponseEntity<*> {
+        friendshipService.removeFriend(friendshipRequestDto)
+        return ResponseEntity.ok("User deleted from friend list")
+    }
 }

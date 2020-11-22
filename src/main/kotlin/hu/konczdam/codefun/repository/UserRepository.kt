@@ -19,6 +19,10 @@ interface UserRepository: JpaRepository<User, Long?> {
     fun findFriendsById(@Param("id") id: Long, page: Pageable): Page<User>
 
 
+    /**
+     * Returns users which are not friends, and doesn't have a friend request
+     * associated with the caller
+     */
     @Query("""
         SELECT u FROM User u 
         WHERE (:name IS NULL OR u.username LIKE %:name%)
@@ -27,7 +31,51 @@ interface UserRepository: JpaRepository<User, Long?> {
         AND :callerId not in (select ff.requester.id from u.incomingFriendRequests ff)
         AND :callerId not in (select ff.receiver.id from u.outgoingFriendRequests ff)
     """)
-    fun findFiltereAndSortedUsers(
+    fun findNonFriendsUsers(
+            @Param("name") name: String?,
+            @Param("callerId") id: Long,
+            page: Pageable
+    ): Page<User>
+
+
+    @Query("""
+        SELECT u FROM User u 
+        WHERE (:name IS NULL OR u.username LIKE %:name%)
+        AND u.id <> :callerId
+        AND :callerId not in (select ff.id from u.friends ff)
+        AND :callerId in (select ff.requester.id from u.incomingFriendRequests ff)
+        AND :callerId not in (select ff.receiver.id from u.outgoingFriendRequests ff)
+    """)
+    fun findUsersFriendRequestSentTo(
+            @Param("name") name: String?,
+            @Param("callerId") id: Long,
+            page: Pageable
+    ): Page<User>
+
+
+    @Query("""
+        SELECT u FROM User u 
+        WHERE (:name IS NULL OR u.username LIKE %:name%)
+        AND u.id <> :callerId
+        AND :callerId not in (select ff.id from u.friends ff)
+        AND :callerId not in (select ff.requester.id from u.incomingFriendRequests ff)
+        AND :callerId in (select ff.receiver.id from u.outgoingFriendRequests ff)
+    """)
+    fun findUsersThatSentFriendRequests(
+            @Param("name") name: String?,
+            @Param("callerId") id: Long,
+            page: Pageable
+    ): Page<User>
+
+    @Query("""
+        SELECT u FROM User u 
+        WHERE (:name IS NULL OR u.username LIKE %:name%)
+        AND u.id <> :callerId
+        AND :callerId in (select ff.id from u.friends ff)
+        AND :callerId not in (select ff.requester.id from u.incomingFriendRequests ff)
+        AND :callerId not in (select ff.receiver.id from u.outgoingFriendRequests ff)
+    """)
+    fun findFriends(
             @Param("name") name: String?,
             @Param("callerId") id: Long,
             page: Pageable
