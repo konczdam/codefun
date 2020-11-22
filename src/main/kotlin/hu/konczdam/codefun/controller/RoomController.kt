@@ -34,9 +34,6 @@ class RoomController {
     @Autowired
     private lateinit var outgoing: SimpMessagingTemplate
 
-    @Autowired
-    private lateinit var javaCodeRunnerService: JavaCodeRunnerService
-
     private fun getUserIdFromPrincipal(principal: UsernamePasswordAuthenticationToken): Long {
         return (principal.principal as UserDetailsImpl).id
     }

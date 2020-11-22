@@ -49,24 +49,29 @@ class ChallengeController {
     fun addChallenge(
             @RequestBody challenge: Challenge
     ): ResponseEntity<Challenge> {
-        val savedChallenge: Challenge = challengeService.addChallenge(challenge)
+        val savedChallenge = challengeService.addChallenge(challenge)
         return ResponseEntity
                 .created(URI("/challenges/${savedChallenge.id}"))
                 .body(savedChallenge)
     }
 
-//    @PatchMapping("/{challengeId}")
-//    fun modifyChallenge(
-//            @PathVariable challengeId: String
-//    ): ResponseEntity<Challenge> {
-//
-//        return ResponseEntity.
-//    }
+    @PatchMapping("/{challengeId}")
+    fun modifyChallenge(
+            @PathVariable challengeId: String,
+            @RequestBody challenge: Challenge
+    ): ResponseEntity<Challenge> {
+        val modifiedChallenge: Challenge = challengeService.modifyChallenge(
+                challengeId.toLong(),
+                challenge
+        )
+        return ResponseEntity.ok(modifiedChallenge)
+    }
 
-//    @DeleteMapping("/challengeId")
-//    fun deleteChallenge(
-//            @PathVariable challengeId: String
-//    ): ResponseEntity<Challenge> {
-
-//    }
+    @DeleteMapping("/{challengeId}")
+    fun deleteChallenge(
+            @PathVariable challengeId: String
+    ): ResponseEntity<*> {
+        challengeService.deleteChallenge(challengeId.toLong())
+        return ResponseEntity.ok("challenge was deleted!")
+    }
 }

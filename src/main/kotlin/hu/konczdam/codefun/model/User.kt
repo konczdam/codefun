@@ -16,7 +16,7 @@ data class User(
 
         val email: String,
 
-        val password: String,
+        var password: String,
 
         var gamesWon: Int = 0,
 

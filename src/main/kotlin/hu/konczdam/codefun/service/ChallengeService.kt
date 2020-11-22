@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
-import org.springframework.data.domain.PageRequest as SpringPageRquest
+import org.springframework.data.domain.PageRequest as SpringPageRequest
 import org.springframework.stereotype.Service
 import java.lang.IllegalArgumentException
 
@@ -27,7 +27,7 @@ class ChallengeService {
 
     fun getPageOfChallenges(pageRequest: PageRequest): Page<Challenge> {
         val sortDirection = getDirectionValueFromString(pageRequest.sortDirection)
-        val springPageRequest = SpringPageRquest.of(
+        val springPageRequest = SpringPageRequest.of(
                 pageRequest.page,
                 pageRequest.size.let { if (it > 0 ) it else Int.MAX_VALUE },
                 Sort.by(sortDirection, pageRequest.sortProperty)
