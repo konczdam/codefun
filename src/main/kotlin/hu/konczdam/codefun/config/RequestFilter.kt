@@ -18,7 +18,7 @@ class RequestFilter: Filter {
         val response = res as HttpServletResponse
 
         response.setHeader("Access-control-Allow-Origin", "http://localhost:3000")
-        response.setHeader("Access-Control-Allow-Methods", "POST, PUT, GET, OPTIONS, DELETE")
+        response.setHeader("Access-Control-Allow-Methods", "POST, PUT, GET, OPTIONS, DELETE, PATCH")
         response.setHeader("Access-Control-Allow-Headers", "x-requested-with, x-auth-token")
         response.setHeader("Access-Control-Max-Age", "3600")
         response.setHeader("Access-Control-Allow-Credentials", "true")

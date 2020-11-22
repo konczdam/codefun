@@ -6,6 +6,7 @@ import hu.konczdam.codefun.repository.ChallengeRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Sort
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.data.domain.PageRequest as SpringPageRquest
 import org.springframework.stereotype.Service
 import java.lang.IllegalArgumentException
@@ -44,6 +45,20 @@ class ChallengeService {
     }
 
     fun addChallenge(challenge: Challenge): Challenge {
+        challenge.challengeTests.forEach { it.challenge = challenge }
+        return challengeRepository.save(challenge)
+    }
+
+    fun deleteChallenge(id: Long) {
+        challengeRepository.deleteById(id)
+    }
+
+    fun modifyChallenge(challengeId: Long, challenge: Challenge): Challenge {
+        val challengeFromDB = challengeRepository.findByIdOrNull(challengeId)
+        if (challengeFromDB == null) {
+            throw Exception("challenge not found in the database!")
+        }
+
         challenge.challengeTests.forEach { it.challenge = challenge }
         return challengeRepository.save(challenge)
     }
