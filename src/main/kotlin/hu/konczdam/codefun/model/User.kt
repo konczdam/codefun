@@ -25,6 +25,9 @@ data class User(
         @ElementCollection(fetch = FetchType.EAGER)
         val preferredLanguages: MutableSet<Language>,
 
+        @ManyToMany(fetch = FetchType.EAGER)
+        val roles: Set<Role> = mutableSetOf(),
+
         @JsonIgnore
         @ManyToMany
         @JoinTable(name = "tbl_friends",
@@ -34,13 +37,18 @@ data class User(
 
         @JsonIgnore
         @ManyToMany
+//        @ManyToMany(mappedBy = "friends")
         @JoinTable(name = "tbl_friends",
                 joinColumns = arrayOf(JoinColumn(name = "friendId")),
                 inverseJoinColumns = arrayOf(JoinColumn(name = "personId")))
         val friendOf: MutableSet<User> = mutableSetOf(),
 
-        @ManyToMany(fetch = FetchType.EAGER)
-        val roles: Set<Role> = mutableSetOf()
+        @OneToMany(mappedBy = "requester", fetch = FetchType.LAZY)
+        val outgoingFriendRequests: List<FriendRequest> = mutableListOf(),
+
+        @OneToMany(mappedBy = "receiver", fetch = FetchType.LAZY)
+        val incomingFriendRequests: List<FriendRequest> = mutableListOf()
+
 ) {
 
     @Id

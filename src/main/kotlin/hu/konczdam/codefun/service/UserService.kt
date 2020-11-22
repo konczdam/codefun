@@ -16,7 +16,7 @@ import org.springframework.security.crypto.bcrypt.BCrypt
 import org.springframework.data.domain.PageRequest as SpringPageRequest
 import org.springframework.stereotype.Service
 import java.lang.IllegalArgumentException
-import javax.transaction.Transactional
+import org.springframework.transaction.annotation.Transactional
 import kotlin.RuntimeException
 
 @Service
@@ -56,7 +56,7 @@ class UserService {
         return userRepository.save(user)
     }
 
-    @Transactional
+    @Transactional(readOnly =  true)
     fun getUserById(userId: Long): User {
         val user = userRepository.findById(userId)
         if (user.isPresent) {
@@ -80,7 +80,7 @@ class UserService {
         userRepository.save(user)
     }
 
-    @Transactional
+    @Transactional(readOnly =  true)
     fun getPageOfUsersExcludingCaller(
             pageRequest: PageRequest,
             name: String?,

@@ -7,10 +7,8 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
-import javax.transaction.Transactional
 
 @Repository
-@Transactional
 interface UserRepository: JpaRepository<User, Long?> {
 
     fun findByEmail(email: String): User?
@@ -25,6 +23,9 @@ interface UserRepository: JpaRepository<User, Long?> {
         SELECT u FROM User u 
         WHERE (:name IS NULL OR u.username LIKE %:name%)
         AND u.id <> :callerId
+        AND :callerId not in (select ff.id from u.friends ff)
+        AND :callerId not in (select ff.requester.id from u.incomingFriendRequests ff)
+        AND :callerId not in (select ff.receiver.id from u.outgoingFriendRequests ff)
     """)
     fun findFiltereAndSortedUsers(
             @Param("name") name: String?,
