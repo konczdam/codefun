@@ -112,6 +112,14 @@ class UserController {
         return ResponseEntity.ok(pageOfUsers.map(User::toDto))
     }
 
+    @GetMapping("friend-ids")
+    fun getAllFriendIds(
+            principal: UsernamePasswordAuthenticationToken
+    ): List<Long?> {
+        val id = getUserIdFromPrincipal(principal)
+        return userService.getAllFriendIds(id)
+    }
+
     @GetMapping("/{id}")
     fun getUser(@PathVariable id: String): ResponseEntity<UserDto> {
         val dto = userService.getUserById(id.toLong()).toDto()

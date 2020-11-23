@@ -6,6 +6,7 @@ import hu.konczdam.codefun.dataacces.TestCaseExecuteDTO
 import hu.konczdam.codefun.dataacces.UserDto
 import hu.konczdam.codefun.docker.ParseResponse
 import hu.konczdam.codefun.docker.service.JavaCodeRunnerService
+import hu.konczdam.codefun.getUserIdFromPrincipal
 import hu.konczdam.codefun.model.Message
 import hu.konczdam.codefun.model.Room
 import hu.konczdam.codefun.service.RoomService
@@ -33,10 +34,6 @@ class RoomController {
 
     @Autowired
     private lateinit var outgoing: SimpMessagingTemplate
-
-    private fun getUserIdFromPrincipal(principal: UsernamePasswordAuthenticationToken): Long {
-        return (principal.principal as UserDetailsImpl).id
-    }
 
     @SubscribeMapping(MSG_PREFIX)
     fun roomList(): List<Room> {
@@ -105,6 +102,15 @@ class RoomController {
         val roomId = getUserIdFromPrincipal(principal)
         val gameTypeEnum = roomService.setGameType(roomId, gameType)
         outgoing.convertAndSend("$TOPIC_PREFIX/$roomId/gameTypeSet", gameTypeEnum)
+    }
+
+    @MessageMapping(MSG_PREFIX + "/setFriendsOnly")
+    fun setFriendsOnly(
+            friendOnly: Boolean,
+            principal: UsernamePasswordAuthenticationToken
+    ) {
+        val roomId = getUserIdFromPrincipal(principal)
+        roomService.setOnlyFriendsAllowed(roomId, friendOnly)
     }
 
     @MessageMapping(MSG_PREFIX + "/startGame")

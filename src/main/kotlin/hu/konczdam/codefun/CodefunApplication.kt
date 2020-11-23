@@ -1,17 +1,12 @@
 package hu.konczdam.codefun
 
-import hu.konczdam.codefun.model.Challenge
 import hu.konczdam.codefun.model.ChallengeTest
-import hu.konczdam.codefun.model.Language
 import hu.konczdam.codefun.repository.ChallengeRepository
 import hu.konczdam.codefun.service.UserService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.CommandLineRunner
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
-import org.springframework.context.ApplicationContext
-import org.springframework.context.ConfigurableApplicationContext
-import javax.annotation.PostConstruct
 
 @SpringBootApplication
 class CodefunApplication: CommandLineRunner {
@@ -52,6 +47,17 @@ class CodefunApplication: CommandLineRunner {
 //		)
 //		element.challenge = challenge
 //
+//		challengeRepository.save(challenge)
+
+//		val challenge = challengeRepository.getRandomChallenge()
+//		val element = ChallengeTest(
+//				input = "5 3",
+//				expectedOutput = "8",
+//
+//				displayName = "hard"
+//		)
+//		element.challenge = challenge
+//		challenge.challengeTests.add(element)
 //		challengeRepository.save(challenge)
 
 	}

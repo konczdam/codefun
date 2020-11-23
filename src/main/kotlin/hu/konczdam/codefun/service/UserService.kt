@@ -150,4 +150,9 @@ class UserService {
         return userRepository.findFriends(name, callerId, springPageRequest)
     }
 
+    @Transactional(readOnly = true)
+    fun getAllFriendIds(userId: Long): List<Long?> {
+        return userRepository.findById(userId).get().friends.map { it.id }
+    }
+
 }

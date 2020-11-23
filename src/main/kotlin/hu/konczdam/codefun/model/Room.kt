@@ -18,6 +18,8 @@ data class Room constructor(
 
     var gameStarted = false
 
+    var onlyFriends = false
+
     @JsonIgnore
     var gameStartedDate: Date? = null
 

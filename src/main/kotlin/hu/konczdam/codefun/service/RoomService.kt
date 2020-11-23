@@ -2,6 +2,7 @@ package hu.konczdam.codefun.service
 
 import hu.konczdam.codefun.controller.RoomController
 import hu.konczdam.codefun.converter.toDto
+import hu.konczdam.codefun.dataacces.RoomUpdateDto
 import hu.konczdam.codefun.dataacces.TestCaseExecuteDTO
 import hu.konczdam.codefun.dataacces.UserDto
 import hu.konczdam.codefun.dataacces.UserUpdateDto
@@ -125,6 +126,15 @@ class RoomService {
             room.gameType = result
         }
         return result
+    }
+
+    fun setOnlyFriendsAllowed(roomId: Long, friendOnly: Boolean) {
+        val room = getRoomList().first { it.owner.id == roomId }
+        synchronized(this) {
+            room.onlyFriends = friendOnly
+        }
+        val roomUpdateDto = RoomUpdateDto(roomId = roomId, friendsOnly = friendOnly)
+        outgoing.convertAndSend("${RoomController.TOPIC_PREFIX}/updateRoom", roomUpdateDto)
     }
 
     fun startGame(roomId: Long): Room {
