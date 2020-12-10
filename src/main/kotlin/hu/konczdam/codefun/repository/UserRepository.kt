@@ -14,12 +14,6 @@ interface UserRepository: JpaRepository<User, Long?> {
 
     fun findByEmail(email: String): User?
 
-    @Query("""
-        SELECT u.friends FROM User u JOIN u.friends WHERE u.id = :id
-    """)
-    fun findFriendsById(@Param("id") id: Long, page: Pageable): Page<User>
-
-
     /**
      * Returns users which are not friends, and doesn't have a friend request
      * associated with the caller

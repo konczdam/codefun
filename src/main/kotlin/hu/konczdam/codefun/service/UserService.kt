@@ -56,7 +56,7 @@ class UserService {
         return userRepository.save(user)
     }
 
-    @Transactional(readOnly =  true)
+    @Transactional(readOnly = true)
     fun getUserById(userId: Long): User {
         val user = userRepository.findById(userId)
         if (user.isPresent) {
@@ -92,7 +92,7 @@ class UserService {
         userRepository.save(user)
     }
 
-    @Transactional(readOnly =  true)
+    @Transactional(readOnly = true)
     fun getPageOfNotFriendUsers(
             pageRequest: PageRequest,
             name: String?,
@@ -107,7 +107,7 @@ class UserService {
         return userRepository.findNonFriendsUsers(name, callerId, springPageRequest)
     }
 
-
+    @Transactional(readOnly = true)
     fun getPageOfUsersFriendRequestSentTo(
             pageRequest: PageRequest,
             name: String?,
@@ -122,6 +122,7 @@ class UserService {
         return userRepository.findUsersFriendRequestSentTo(name, callerId, springPageRequest)
     }
 
+    @Transactional(readOnly = true)
     fun getPageOfUsersWhoSentFriendRequests(
             pageRequest: PageRequest,
             name: String?,
@@ -136,6 +137,7 @@ class UserService {
         return userRepository.findUsersThatSentFriendRequests(name, callerId, springPageRequest)
     }
 
+    @Transactional(readOnly = true)
     fun getPageOfFriends(
             pageRequest: PageRequest,
             name: String?,

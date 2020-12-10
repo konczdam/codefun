@@ -1,4 +1,4 @@
-package hu.konczdam.codefun.controller;
+package hu.konczdam.codefun.controller
 
 import hu.konczdam.codefun.converter.toDto
 import hu.konczdam.codefun.dataacces.PageRequest

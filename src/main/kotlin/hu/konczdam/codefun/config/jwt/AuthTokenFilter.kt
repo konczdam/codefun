@@ -1,7 +1,6 @@
 package hu.konczdam.codefun.config.jwt
 
 import hu.konczdam.codefun.services.UserDetailsServiceImpl
-import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder

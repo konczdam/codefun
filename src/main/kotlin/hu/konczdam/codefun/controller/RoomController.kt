@@ -5,12 +5,10 @@ import hu.konczdam.codefun.dataacces.RoomUpdateDto
 import hu.konczdam.codefun.dataacces.TestCaseExecuteDTO
 import hu.konczdam.codefun.dataacces.UserDto
 import hu.konczdam.codefun.docker.ParseResponse
-import hu.konczdam.codefun.docker.service.JavaCodeRunnerService
 import hu.konczdam.codefun.getUserIdFromPrincipal
 import hu.konczdam.codefun.model.Message
 import hu.konczdam.codefun.model.Room
 import hu.konczdam.codefun.service.RoomService
-import hu.konczdam.codefun.services.UserDetailsImpl
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.messaging.handler.annotation.DestinationVariable
 import org.springframework.messaging.handler.annotation.MessageMapping

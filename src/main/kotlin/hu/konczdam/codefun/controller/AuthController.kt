@@ -70,8 +70,4 @@ class AuthController {
         return ResponseEntity.created(URI("/api/user/${user.id}")).body("User created!")
     }
 
-    @PostMapping("/test")
-    fun test() {
-        codeExecutorManagerService.test()
-    }
 }

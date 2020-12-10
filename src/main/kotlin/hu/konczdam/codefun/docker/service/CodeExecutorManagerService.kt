@@ -12,14 +12,6 @@ class CodeExecutorManagerService {
     @Qualifier("JAVA")
     private lateinit var javaCodeRunnerService: CodeRunnerService
 
-    fun test() {
-        javaCodeRunnerService.executeCode(
-                8L,
-                "import java.util.Scanner;  public class Solution {      public static void main(String[] args) {         Scanner scanner = new Scanner(System.in);                  int a = scanner.nextInt();         int b = scanner.nextInt();          System.out.println(a+b);     } }",
-                listOf(9L, 111L)
-        )
-    }
-
     fun executeJavaCode(
             challengeId: Long,
             code: String,
