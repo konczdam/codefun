@@ -24,14 +24,13 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-@EnableWebMvc
 class WebSecurityConfig: WebSecurityConfigurerAdapter(), WebMvcConfigurer {
 
     @Autowired
     private lateinit var userDetailsService: UserDetailsServiceImpl
 
     @Autowired
-    private lateinit var unathorizedHandler: AuthEntryPointJwt
+    private lateinit var unauthorizedHandler: AuthEntryPointJwt
 
     @Bean
     fun authenticationJwtTokenFilter(): AuthTokenFilter = AuthTokenFilter()
@@ -54,11 +53,10 @@ class WebSecurityConfig: WebSecurityConfigurerAdapter(), WebMvcConfigurer {
     override fun configure(http: HttpSecurity) {
         http
                 .csrf().disable()
-                .exceptionHandling().authenticationEntryPoint(unathorizedHandler).and()
+                .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeRequests()
-                .antMatchers("/resource/**", "/test/**", "api/test/**",
-                        "api/login/**", "/login/**", "/auth/**", "/auth", "/api/auth", "/ws", "/ws", "/ws/**").permitAll()
+                .antMatchers("/resource/**", "/auth/**", "/ws/**").permitAll()
                 .anyRequest().authenticated()
 
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter::class.java)

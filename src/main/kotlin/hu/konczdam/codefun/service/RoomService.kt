@@ -52,9 +52,7 @@ class RoomService {
             throw Exception("A user can only delete its own room!")
         }
         val roomToDelete = getRoomList().first { it.owner.id == ownerId }
-        synchronized(this) {
-            roomList.remove(roomToDelete)
-        }
+        removeRoom(roomToDelete)
     }
 
     fun usersInChatRoom(ownerId: Long): List<UserDto> {
@@ -271,7 +269,7 @@ class RoomService {
         if (roomOwnedByUser != null) {
             removeRoom(userId, userId)
             outgoing.convertAndSend("${RoomController.TOPIC_PREFIX}/roomClosed", userId)
-            return;
+            return
         }
 
         val roomUserIsIn = rooms.filter { it.others.any { user -> user.id.equals(userId)}}.firstOrNull()

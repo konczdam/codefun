@@ -52,6 +52,7 @@ dependencies {
 	testImplementation("com.h2database:h2")
 	testImplementation("io.projectreactor:reactor-test")
 	testImplementation("org.springframework.security:spring-security-test")
+	testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0")
 }
 
 tasks.withType<Test> {

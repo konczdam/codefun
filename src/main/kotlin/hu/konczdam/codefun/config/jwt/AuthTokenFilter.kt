@@ -16,10 +16,6 @@ import javax.servlet.http.HttpServletResponse
 @Component
 class AuthTokenFilter: OncePerRequestFilter() {
 
-    companion object {
-        private val logger = LoggerFactory.getLogger(AuthTokenFilter::class.java)
-    }
-
     @Autowired
     private lateinit var jwtUtils: JwtUtils
 

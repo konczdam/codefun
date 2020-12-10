@@ -36,17 +36,17 @@ class UserDetailsImpl constructor(
         }
     }
 
-    override fun getAuthorities(): Collection<GrantedAuthority> = authorities
+    override fun getAuthorities() = authorities
 
     override fun getPassword() = password
 
     override fun getUsername() = username
 
-    override fun isAccountNonExpired(): Boolean = true
+    override fun isAccountNonExpired() = true
 
-    override fun isAccountNonLocked(): Boolean = true
+    override fun isAccountNonLocked() = true
 
-    override fun isCredentialsNonExpired(): Boolean = true
+    override fun isCredentialsNonExpired() = true
 
-    override fun isEnabled(): Boolean = true
+    override fun isEnabled() = true
 }

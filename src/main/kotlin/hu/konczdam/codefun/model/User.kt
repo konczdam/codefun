@@ -23,7 +23,7 @@ data class User(
         var gamesPlayed: Int = 0,
 
         @ElementCollection(fetch = FetchType.EAGER)
-        val preferredLanguages: MutableSet<Language>,
+        val preferredLanguages: MutableSet<Language> = mutableSetOf(),
 
         @ManyToMany(fetch = FetchType.EAGER)
         val roles: Set<Role> = mutableSetOf()

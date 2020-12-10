@@ -13,7 +13,6 @@ import java.util.*
 @Component
 class JwtUtils(
         @Value("\${konczdam.app.jwtSecret}")
-
         private var jwtSecret: String,
 
         @Value("\${konczdam.app.jwtExpirationMs}")

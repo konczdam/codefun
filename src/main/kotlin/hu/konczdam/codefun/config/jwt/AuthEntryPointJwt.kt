@@ -10,7 +10,6 @@ import javax.servlet.http.HttpServletResponse
 @Component
 class AuthEntryPointJwt: AuthenticationEntryPoint {
 
-
     companion object {
         private val logger = LoggerFactory.getLogger(AuthEntryPointJwt::class.java)
     }
